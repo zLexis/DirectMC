@@ -26,7 +26,7 @@ public class LagUtils implements Listener{
 				}
 			}
 		}.runTaskTimerAsynchronously(directmc, 1L, 1L);
-		this.directmc.RegisterListener(this);
+		this.directmc.addListener(this);
 	}
 	public double getTPS(){
 		return this.tps + 1.0D > 20.0D ? 20.0D : this.tps + 1.0D;

@@ -39,6 +39,7 @@ public class PayCmd extends Cmd{
 									DirectMC.sendMessage(p, getString("no-yourself"));
 									return true;
 								}else{
+									DirectMC.getEcoManager().takeMoney(p, money);
 									DirectMC.sendMessage(player, getString("pay-to").replace("{PLAYER}", p.getName()).replace("{SYMBOL}", DirectMC.getEcoManager().getVaultSymbol()).replace("{MONEY}", String.valueOf(money)));
 									DirectMC.sendMessage(p, getString("pay").replace("{PLAYER}", player.getName()).replace("{SYMBOL}", DirectMC.getEcoManager().getVaultSymbol()).replace("{MONEY}", String.valueOf(money)));
 									return true;

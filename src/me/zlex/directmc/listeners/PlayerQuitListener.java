@@ -18,5 +18,15 @@ public class PlayerQuitListener implements Listener{
 		if (DirectMC.getEcoManager().isEnabled()){
 			DirectMC.getEcoManager().fixMoney(e.getPlayer(), EcoManager.getMinMoney(), EcoManager.getMaxMoney());
 		}
+		if (DirectMC.getCombatManager().getBoolean("kill-on-quit")){
+			if (DirectMC.getCombatManager().isPlayerPresent(e.getPlayer())){
+				e.getPlayer().setHealth(0);
+			}
+		}
+		if (DirectMC.getCombatManager().getBoolean("remove-on-quit")){
+			if (DirectMC.getCombatManager().isPlayerPresent(e.getPlayer())){
+				DirectMC.getCombatManager().deleteCombat(e.getPlayer());
+			}
+		}
 	}
 }

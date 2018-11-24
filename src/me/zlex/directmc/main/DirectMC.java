@@ -35,6 +35,7 @@ public class DirectMC extends JavaPlugin{
 	private static DatabaseManager databaseManager;
 	private static TPAManager tpaManager;
 	private static EcoManager ecoManager;
+	private static CombatManager combatManager;
 	public static CmdManager getCmdManager(){
 		return cmdManager;
 	}
@@ -46,6 +47,9 @@ public class DirectMC extends JavaPlugin{
 	}
 	public static EcoManager getEcoManager(){
 		return ecoManager;
+	}
+	public static CombatManager getCombatManager(){
+		return combatManager;
 	}
 	public static FileConfiguration getTConfig(){
 		return config;
@@ -106,7 +110,8 @@ public class DirectMC extends JavaPlugin{
 		databaseManager = new DatabaseManager();
 		tpaManager = new TPAManager();
 		ecoManager = new EcoManager();
-		addCommands();
+		combatManager = new CombatManager();
+		addCmds();
 		addDatabases();
 		File file = new File(getDataFolder(), "config.yml");
 		if(!file.exists()){
@@ -132,6 +137,8 @@ public class DirectMC extends JavaPlugin{
 			functions.createSection("creative-enderpearl");
 			functions.createSection("enderpearl-cooldown");
 			functions.createSection("ping-fix");
+			functions.createSection("combat-log");
+			functions.createSection("keep-inventory");
 			ConfigurationSection commandblocking = functions.getConfigurationSection("command-blocking");
 			ConfigurationSection autopickup = functions.getConfigurationSection("auto-pickup");
 			ConfigurationSection custommessages = functions.getConfigurationSection("custom-messages");
@@ -139,6 +146,8 @@ public class DirectMC extends JavaPlugin{
 			ConfigurationSection creativeenderpearl = functions.getConfigurationSection("creative-enderpearl");
 			ConfigurationSection enderpearlcooldown = functions.getConfigurationSection("enderpearl-cooldown");
 			ConfigurationSection pingfix = functions.getConfigurationSection("ping-fix");
+			ConfigurationSection combatlog = functions.getConfigurationSection("combat-log");
+			ConfigurationSection keepinventory = functions.getConfigurationSection("keep-inventory");
 			general.addDefault("prefix", prefix.replace("§", "&"));
 			general.addDefault("spawn-location", "777 5 777 90 90 world");
 			general.addDefault("force-spawn-on-join", false);
@@ -180,6 +189,19 @@ public class DirectMC extends JavaPlugin{
 			enderpearlcooldown.addDefault("delay", 3000L);
 			enderpearlcooldown.addDefault("remaining-delay", "&7You can not use the ender pearl now because you need to wait another &e{SECONDS} &7seconds.");
 			pingfix.addDefault("enabled", true);
+			combatlog.addDefault("enabled", false);
+			combatlog.addDefault("remove-on-quit", true);
+			combatlog.addDefault("remove-on-death", true);
+			combatlog.addDefault("kill-on-quit", true);
+			combatlog.addDefault("disable-commands", true);
+			combatlog.addDefault("disable-fly", true);
+			combatlog.addDefault("remove-time", 20000L);
+			combatlog.addDefault("no-commands", "&7You can not execute commands while in combat.");
+			combatlog.addDefault("now-combat", "&7You are now in combat. If you logout, you will die.");
+			combatlog.addDefault("no-combat", "&7You are no longer in combat.");
+			keepinventory.addDefault("enabled", false);
+			keepinventory.addDefault("inventory", true);
+			keepinventory.addDefault("exp", true);
 			getConfig().options().copyDefaults(true);
 			saveConfig();
 			reloadConfig();
@@ -198,77 +220,83 @@ public class DirectMC extends JavaPlugin{
 		config = getConfig();
 		plugin = this;
 		lagUtils = new LagUtils(this);
-		RegisterListener(new EntityDamageListener());
-		RegisterListener(new PlayerJoinListener());
-		RegisterListener(new PlayerInteractListener());
-		RegisterListener(new PreProcessCommandListener());
-		RegisterListener(new BlockBreakListener());
-		RegisterListener(new EntityDeathListener());
-		RegisterListener(new AsyncPlayerChatListener());
-		RegisterListener(new PlayerMoveListener());
-		RegisterListener(new PlayerKickListener());
-		RegisterListener(new PlayerQuitListener());
-		RegisterListener(new PlayerLoginListener());
-		RegisterListener(lagUtils);
+		addListener(new EntityDamageListener());
+		addListener(new PlayerJoinListener());
+		addListener(new PlayerInteractListener());
+		addListener(new PreProcessCommandListener());
+		addListener(new BlockBreakListener());
+		addListener(new EntityDeathListener());
+		addListener(new AsyncPlayerChatListener());
+		addListener(new PlayerMoveListener());
+		addListener(new PlayerKickListener());
+		addListener(new PlayerQuitListener());
+		addListener(new PlayerLoginListener());
+		addListener(new PlayerDeathListener());
+		addListener(lagUtils);
 	}
-	public void addCommands(){
-		addCommand(new FlyCmd());
-		addCommand(new HealCmd());
-		addCommand(new FeedCmd());
-		addCommand(new DirectMCCmd());
-		addCommand(new GodCmd());
-		addCommand(new HatCmd());
-		addCommand(new SuicideCmd());
-		addCommand(new ExtinguishCmd());
-		addCommand(new GmCmd());
-		addCommand(new GmsCmd());
-		addCommand(new GmcCmd());
-		addCommand(new GmaCmd());
-		addCommand(new WorkbenchCmd());
-		addCommand(new SpawnCmd());
-		addCommand(new SetspawnCmd());
-		addCommand(new RepairCmd());
-		addCommand(new DirectCmd());
-		addCommand(new ZeusCmd());
-		addCommand(new XPCmd());
-		addCommand(new TPAllCmd());
-		addCommand(new TPToggleCmd());
-		addCommand(new WorldCmd());
-		addCommand(new WorldsCmd());
-		addCommand(new KillCmd());
-		addCommand(new ClearCmd());
-		addCommand(new InvseeCmd());
-		addCommand(new EnderchestCmd());
-		addCommand(new EnderseeCmd());
-		addCommand(new NightvisionCmd());
-		addCommand(new OnepunchCmd());
-		addCommand(new PingCmd());
-		addCommand(new NearCmd());
-		addCommand(new LevelupCmd());
-		addCommand(new VanishCmd());
-		addCommand(new GetPosCmd());
-		addCommand(new AutoPickupCmd());
-		addCommand(new SpeedCmd());
-		addCommand(new FreezeCmd());
-		addCommand(new UnfreezeCmd());
-		addCommand(new SetwarpCmd());
-		addCommand(new DelwarpCmd());
-		addCommand(new WarpCmd());
-		addCommand(new WarpsCmd());
-		addCommand(new ThorCmd());
-		addCommand(new TopCmd());
-		addCommand(new GiveCmd());
-		addCommand(new SkullCmd());
-		addCommand(new BroadcastCmd());
-		addCommand(new TPACmd());
-		addCommand(new TPAcceptCmd());
-		addCommand(new TPDenyCmd());
-		addCommand(new TPAHereCmd());
-		addCommand(new FireballCmd());
-		addCommand(new BalanceCmd());
-		addCommand(new EconomyCmd());
-		addCommand(new PayCmd());
-		addCommand(new TPHereCmd());
+	public void addCmds(){
+		addCmd(new FlyCmd());
+		addCmd(new HealCmd());
+		addCmd(new FeedCmd());
+		addCmd(new DirectMCCmd());
+		addCmd(new GodCmd());
+		addCmd(new HatCmd());
+		addCmd(new SuicideCmd());
+		addCmd(new ExtinguishCmd());
+		addCmd(new GmCmd());
+		addCmd(new GmsCmd());
+		addCmd(new GmcCmd());
+		addCmd(new GmaCmd());
+		addCmd(new WorkbenchCmd());
+		addCmd(new SpawnCmd());
+		addCmd(new SetspawnCmd());
+		addCmd(new RepairCmd());
+		addCmd(new DirectCmd());
+		addCmd(new ZeusCmd());
+		addCmd(new XPCmd());
+		addCmd(new TPAllCmd());
+		addCmd(new TPToggleCmd());
+		addCmd(new WorldCmd());
+		addCmd(new WorldsCmd());
+		addCmd(new KillCmd());
+		addCmd(new ClearCmd());
+		addCmd(new InvseeCmd());
+		addCmd(new EnderchestCmd());
+		addCmd(new EnderseeCmd());
+		addCmd(new NightvisionCmd());
+		addCmd(new OnepunchCmd());
+		addCmd(new PingCmd());
+		addCmd(new NearCmd());
+		addCmd(new LevelupCmd());
+		addCmd(new VanishCmd());
+		addCmd(new GetPosCmd());
+		addCmd(new AutoPickupCmd());
+		addCmd(new SpeedCmd());
+		addCmd(new FreezeCmd());
+		addCmd(new UnfreezeCmd());
+		addCmd(new SetwarpCmd());
+		addCmd(new DelwarpCmd());
+		addCmd(new WarpCmd());
+		addCmd(new WarpsCmd());
+		addCmd(new ThorCmd());
+		addCmd(new TopCmd());
+		addCmd(new GiveCmd());
+		addCmd(new SkullCmd());
+		addCmd(new BroadcastCmd());
+		addCmd(new TPACmd());
+		addCmd(new TPAcceptCmd());
+		addCmd(new TPDenyCmd());
+		addCmd(new TPAHereCmd());
+		addCmd(new FireballCmd());
+		addCmd(new BalanceCmd());
+		addCmd(new EconomyCmd());
+		addCmd(new PayCmd());
+		addCmd(new TPHereCmd());
+		addCmd(new SnowballCmd());
+		addCmd(new ArrowCmd());
+		addCmd(new EggCmd());
+		addCmd(new EnderpearlCmd());
+		addCmd(new WitherskullCmd());
 	}
 	public void addDatabases(){
 		addDatabase(new WarpDatabase());
@@ -277,9 +305,9 @@ public class DirectMC extends JavaPlugin{
 	public void addDatabase(Database database){
 		databaseManager.addDatabase(database);
 	}
-	public void addCommand(Cmd cmd){
+	public void addCmd(Cmd cmd){
 		getCommand(cmd.getName().toLowerCase()).setExecutor(cmd);
-		cmdManager.addCommand(cmd);
+		cmdManager.addCmd(cmd);
 	}
 	public static Plugin getPlugin(){
 		return Bukkit.getServer().getPluginManager().getPlugin("DirectMC");
@@ -290,7 +318,7 @@ public class DirectMC extends JavaPlugin{
 	public static String getPrefix(){
 		return prefix;
 	}
-	public void RegisterListener(Listener listener){
+	public void addListener(Listener listener){
 		getServer().getPluginManager().registerEvents(listener, (Plugin) this);
 	}
 	public static void sendMessage(Player p, String msg){

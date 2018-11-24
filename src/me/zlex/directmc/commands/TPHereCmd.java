@@ -31,6 +31,7 @@ public class TPHereCmd extends Cmd{
 							DirectMC.sendMessage(p, getString("no-yourself"));
 							return true;
 						}else{
+							player.teleport(p.getLocation());
 							DirectMC.sendMessage(player, getString("tphere-to").replace("{PLAYER}", p.getName()));
 							DirectMC.sendMessage(p, getString("tphere").replace("{PLAYER}", player.getName()));
 							return true;

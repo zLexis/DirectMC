@@ -36,5 +36,11 @@ public class PreProcessCommandListener implements Listener{
 	            e.setCancelled(true);
 	        }
 		}
+		if (DirectMC.getCombatManager().getBoolean("disable-commands")){
+			if (DirectMC.getCombatManager().isPlayerPresent(p)){
+				DirectMC.sendMessage(p, DirectMC.getPlugin().getConfig().getConfigurationSection("functions").getConfigurationSection("combat-log").getString("no-commands").replace("&", "§"));
+				e.setCancelled(true);
+			}
+		}
 	}
 }

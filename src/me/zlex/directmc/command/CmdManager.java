@@ -5,16 +5,16 @@ public class CmdManager{
 	public CmdManager(){
 		cmds = new ArrayList<Cmd>();
 	}
-	public void addCommand(Cmd cmd){
+	public void addCmd(Cmd cmd){
 		cmds.add(cmd);
 	}
-	public void removeCommand(Cmd cmd){
+	public void removeCmd(Cmd cmd){
 		cmds.remove(cmd);
 	}
 	public ArrayList<Cmd> getCommands(){
 		return cmds;
 	}
-	public Cmd getCommandByName(String name){
+	public Cmd getCmdByName(String name){
 		for (Cmd cmd: cmds){
 			if (name.toLowerCase() == cmd.getName().toLowerCase()){
 				return cmd;
@@ -23,15 +23,15 @@ public class CmdManager{
 		return null;
 	}
 	public String getString(String cmd, String title){
-		return getCommandByName(cmd).getString(title);
+		return getCmdByName(cmd).getString(title);
 	}
 	public int getInteger(String cmd, String title){
-		return getCommandByName(cmd).getInteger(title);
+		return getCmdByName(cmd).getInteger(title);
 	}
 	public boolean getBoolean(String cmd, String title){
-		return getCommandByName(cmd).getBoolean(title);
+		return getCmdByName(cmd).getBoolean(title);
 	}
 	public double getDouble(String cmd, String title){
-		return getCommandByName(cmd).getDouble(title);
+		return getCmdByName(cmd).getDouble(title);
 	}
 }
